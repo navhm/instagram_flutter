@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_flutter/blocs/auth/auth_bloc.dart';
 import 'package:instagram_flutter/blocs/profile/profile_bloc.dart';
 import 'package:instagram_flutter/repositories/repositories.dart';
+import 'package:instagram_flutter/screens/feed/cubit/like_post_cubit.dart';
 import 'package:instagram_flutter/widgets/error_dialog.dart';
 import 'package:instagram_flutter/widgets/post_view.dart';
 import 'package:instagram_flutter/widgets/prfile_info.dart';
@@ -29,6 +30,7 @@ class ProfileScreen extends StatefulWidget {
               create: (_) => ProfileBloc(
                   userRepository: context.read<UserRepository>(),
                   postsRepository: context.read<PostsRepository>(),
+                  likePostCubit: context.read<LikePostCubit>(),
                   authBloc: context.read<AuthBloc>())
                 ..add(
                   ProfileLoadUser(userId: args.userId),
@@ -45,6 +47,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -88,158 +93,190 @@ class _ProfileScreenState extends State<ProfileScreen>
                   : null,
               automaticallyImplyLeading: false,
             ),
-            body: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: <Widget>[
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            UserProfileImage(
-                                radius: 40,
-                                profileImageUrl: state.user!.profileImageUrl),
-                            Expanded(
-                                child: ProfileStats(
-                              posts: state.posts.length,
-                              followers: state.user!.followers.toString(),
-                              following: state.user!.following.toString(),
-                              isCurrentUser: state.isCurrentUser,
-                              isFollowing: state.isFollowing,
-                            )),
-                          ],
+            body: RefreshIndicator(
+              key: _refreshIndicatorKey,
+              backgroundColor: Colors.transparent,
+              color: Colors.white,
+              strokeWidth: 2,
+              onRefresh: () async {
+                //TODO: implement proper refresh indicator to refresh the user profile when data is loaded.
+                context
+                    .read<ProfileBloc>()
+                    .add(ProfileLoadUser(userId: state.user!.id));
+              },
+              child: CustomScrollView(
+                slivers: <Widget>[
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              UserProfileImage(
+                                  radius: 40,
+                                  profileImageUrl: state.user!.profileImageUrl),
+                              Expanded(
+                                  child: ProfileStats(
+                                posts: state.posts.length,
+                                followers: state.user!.followers.toString(),
+                                following: state.user!.following.toString(),
+                                isCurrentUser: state.isCurrentUser,
+                                isFollowing: state.isFollowing,
+                              )),
+                            ],
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 10),
-                        child: ProfileInfo(
-                          username: state.user!.username,
-                          bio: state.user!.bio,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 10),
+                          child: ProfileInfo(
+                            username: state.user!.username,
+                            bio: state.user!.bio,
+                          ),
                         ),
-                      ),
-                    ],
+                        const Divider(),
+                      ],
+                    ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: TabBar(
-                    onTap: (i) =>
-                        context.read<ProfileBloc>().add(ToggleTabs(pos: i)),
-                    controller: _tabController,
-                    indicatorColor: Colors.white,
-                    tabs: const [
-                      Tab(icon: Icon(Icons.grid_on)),
-                      Tab(icon: Icon(Icons.movie)),
-                      Tab(icon: Icon(Icons.assignment_ind)),
-                    ],
+                  SliverToBoxAdapter(
+                    child: TabBar(
+                      onTap: (i) =>
+                          context.read<ProfileBloc>().add(ToggleTabs(pos: i)),
+                      controller: _tabController,
+                      indicatorColor: Colors.white,
+                      tabs: const [
+                        Tab(icon: Icon(Icons.grid_on)),
+                        Tab(icon: Icon(Icons.movie)),
+                        Tab(icon: Icon(Icons.assignment_ind)),
+                      ],
+                    ),
                   ),
-                ),
-                state.tabPos == 0
-                    ? SliverGrid(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final post = state.posts[index];
-                          return GestureDetector(
-                            onTap: () {},
-                            child: CachedNetworkImage(
-                              imageUrl: post!.imageUrl,
-                              fit: BoxFit.cover,
-                            ),
-                          );
-                        }, childCount: state.posts.length),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 2.0,
-                          crossAxisSpacing: 2.0,
+                  state.tabPos == 0
+                      ? SliverGrid(
+                          delegate:
+                              SliverChildBuilderDelegate((context, index) {
+                            final post = state.posts[index];
+                            return GestureDetector(
+                              onTap: () {},
+                              child: CachedNetworkImage(
+                                imageUrl: post!.imageUrl,
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          }, childCount: state.posts.length),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 2.0,
+                            crossAxisSpacing: 2.0,
+                          ),
+                        )
+                      : SliverList(
+                          delegate:
+                              SliverChildBuilderDelegate((context, index) {
+                            final post = state.posts[index];
+                            final likedPostState =
+                                context.watch<LikePostCubit>().state;
+                            final isLiked =
+                                likedPostState.likedPostIds.contains(post!.id);
+                            final recentlyLiked = likedPostState.newLikedPostIds
+                                .contains(post.id);
+                            return PostView(
+                              post: post,
+                              isLiked: isLiked,
+                              recentlyLiked: recentlyLiked,
+                              onLike: () {
+                                if (isLiked) {
+                                  context
+                                      .read<LikePostCubit>()
+                                      .unlikePost(postId: post.id!);
+                                } else {
+                                  context
+                                      .read<LikePostCubit>()
+                                      .likePost(post: post);
+                                }
+                              },
+                            );
+                          }, childCount: state.posts.length),
                         ),
-                      )
-                    : SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final post = state.posts[index];
-                          return PostView(
-                            post: post!,
-                            isLiked: false,
-                          );
-                        }, childCount: state.posts.length),
-                      ),
-                // SliverAppBar(
-                //   titleSpacing: 20,
-                //   title: Text(
-                //     state.user!.username,
-                //     style: const TextStyle(fontWeight: FontWeight.bold),
-                //   ),
-                //   actions: state.isCurrentUser
-                //       ? [
-                //           IconButton(
-                //               onPressed: () {}, icon: const Icon(Icons.menu)),
-                //         ]
-                //       : null,
-                //   automaticallyImplyLeading: false,
-                //   pinned: true,
-                //   expandedHeight: 270.0,
-                //   flexibleSpace: FlexibleSpaceBar(
-                //     background: Padding(
-                //       padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
-                //       child: Column(
-                //         crossAxisAlignment: CrossAxisAlignment.start,
-                //         children: [
-                //           Row(
-                //             crossAxisAlignment: CrossAxisAlignment.center,
-                //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //             children: [
-                //               UserProfileImage(
-                //                   radius: 40,
-                //                   profileImageUrl:
-                //                       state.user!.profileImageUrl),
-                //               const Column(
-                //                 children: [
-                //                   Text('0'),
-                //                   Text('Posts'),
-                //                 ],
-                //               ),
-                //               Column(
-                //                 children: [
-                //                   Text('${state.user!.followers}'),
-                //                   const Text('Followers'),
-                //                 ],
-                //               ),
-                //               Column(
-                //                 children: [
-                //                   Text('${state.user!.following}'),
-                //                   const Text('Following'),
-                //                 ],
-                //               ),
-                //             ],
-                //           ),
-                //           const SizedBox(
-                //             height: 10,
-                //           ),
-                //           Text(
-                //             state.user!.username,
-                //             style: const TextStyle(
-                //                 fontWeight: FontWeight.bold, fontSize: 15),
-                //           ),
-                //           const SizedBox(
-                //             height: 5,
-                //           ),
-                //           const Text('This is my bio')
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                //   bottom: const TabBar(
-                // indicatorColor: Colors.white,
-                // tabs: [
-                //   Tab(icon: Icon(Icons.grid_on)),
-                //   Tab(icon: Icon(Icons.movie)),
-                //   Tab(icon: Icon(Icons.assignment_ind)),
-                //     ],
-                //   ),
-                // ),
-              ],
+                  // SliverAppBar(
+                  //   titleSpacing: 20,
+                  //   title: Text(
+                  //     state.user!.username,
+                  //     style: const TextStyle(fontWeight: FontWeight.bold),
+                  //   ),
+                  //   actions: state.isCurrentUser
+                  //       ? [
+                  //           IconButton(
+                  //               onPressed: () {}, icon: const Icon(Icons.menu)),
+                  //         ]
+                  //       : null,
+                  //   automaticallyImplyLeading: false,
+                  //   pinned: true,
+                  //   expandedHeight: 270.0,
+                  //   flexibleSpace: FlexibleSpaceBar(
+                  //     background: Padding(
+                  //       padding: const EdgeInsets.fromLTRB(20, 100, 20, 20),
+                  //       child: Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           Row(
+                  //             crossAxisAlignment: CrossAxisAlignment.center,
+                  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //             children: [
+                  //               UserProfileImage(
+                  //                   radius: 40,
+                  //                   profileImageUrl:
+                  //                       state.user!.profileImageUrl),
+                  //               const Column(
+                  //                 children: [
+                  //                   Text('0'),
+                  //                   Text('Posts'),
+                  //                 ],
+                  //               ),
+                  //               Column(
+                  //                 children: [
+                  //                   Text('${state.user!.followers}'),
+                  //                   const Text('Followers'),
+                  //                 ],
+                  //               ),
+                  //               Column(
+                  //                 children: [
+                  //                   Text('${state.user!.following}'),
+                  //                   const Text('Following'),
+                  //                 ],
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           const SizedBox(
+                  //             height: 10,
+                  //           ),
+                  //           Text(
+                  //             state.user!.username,
+                  //             style: const TextStyle(
+                  //                 fontWeight: FontWeight.bold, fontSize: 15),
+                  //           ),
+                  //           const SizedBox(
+                  //             height: 5,
+                  //           ),
+                  //           const Text('This is my bio')
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                  //   bottom: const TabBar(
+                  // indicatorColor: Colors.white,
+                  // tabs: [
+                  //   Tab(icon: Icon(Icons.grid_on)),
+                  //   Tab(icon: Icon(Icons.movie)),
+                  //   Tab(icon: Icon(Icons.assignment_ind)),
+                  //     ],
+                  //   ),
+                  // ),
+                ],
+              ),
             ));
       },
     );

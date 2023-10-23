@@ -1,15 +1,25 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagram_flutter/extensions/extensions.dart';
 import 'package:instagram_flutter/models/models.dart';
 import 'package:instagram_flutter/screens/profile/profile_screen.dart';
 import 'package:instagram_flutter/widgets/user_profile_image.dart';
 
 class PostView extends StatelessWidget {
-  const PostView({super.key, required this.post, required this.isLiked});
+  const PostView(
+      {super.key,
+      required this.post,
+      required this.isLiked,
+      required this.onLike,
+      this.recentlyLiked = false});
 
   final Post post;
   final bool isLiked;
+  final VoidCallback onLike;
+  final bool recentlyLiked;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +30,8 @@ class PostView extends StatelessWidget {
           padding: const EdgeInsets.all(15.0),
           child: GestureDetector(
             onTap: () {
-              Navigator.of(context).pushNamed(ProfileScreen.routeName, arguments: ProfileScreenArgs(userId: post.author.id));
+              Navigator.of(context).pushNamed(ProfileScreen.routeName,
+                  arguments: ProfileScreenArgs(userId: post.author.id));
               //navigate to the user profile
             },
             child: Row(
@@ -42,7 +53,7 @@ class PostView extends StatelessWidget {
           ),
         ),
         GestureDetector(
-          onDoubleTap: () {},
+          onDoubleTap: onLike,
           child: CachedNetworkImage(
             imageUrl: post.imageUrl,
             fit: BoxFit.cover,
@@ -53,7 +64,7 @@ class PostView extends StatelessWidget {
         Row(
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: onLike,
               icon: isLiked
                   ? const Icon(
                       Icons.favorite,
@@ -61,8 +72,17 @@ class PostView extends StatelessWidget {
                     )
                   : const Icon(Icons.favorite_outline),
             ),
-            IconButton(
-                onPressed: () {}, icon: const Icon(Icons.mode_comment_outlined))
+            Transform(
+              alignment: Alignment.center,
+              transform:
+                  Matrix4.rotationY(pi), // Rotate 180 degrees horizontally
+              child: IconButton(
+                onPressed: () {},
+                icon: const FaIcon(
+                  FontAwesomeIcons.comment,
+                ),
+              ),
+            )
           ],
         ),
         Padding(
@@ -71,7 +91,7 @@ class PostView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                '${post.likes} likes',
+                '${recentlyLiked ? post.likes + 1 : post.likes} likes',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(
@@ -83,15 +103,16 @@ class PostView extends StatelessWidget {
                     TextSpan(
                       text: '${post.author.username}  ',
                       style: const TextStyle(
+                        color: Colors.black,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     TextSpan(
                       text: post.caption,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: 12
-                      ),
+                      style: TextStyle(
+                          color: Colors.grey[800],
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12),
                     ),
                   ],
                 ),
@@ -102,7 +123,9 @@ class PostView extends StatelessWidget {
               Text(
                 post.dateTime.getTimeAgo(),
                 style: TextStyle(
-                    color: Colors.grey[600], fontWeight: FontWeight.w500),
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
               )
             ],
           ),

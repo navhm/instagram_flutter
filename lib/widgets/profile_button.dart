@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:instagram_flutter/blocs/blocs.dart';
 import 'package:instagram_flutter/screens/profile/edit_profile_screen.dart';
 
 class ProfileButton extends StatelessWidget {
@@ -16,7 +18,12 @@ class ProfileButton extends StatelessWidget {
     return ElevatedButton(
       //enable disable based on state of form
       onPressed: () {
-        isCurrentUser ? Navigator.of(context).pushNamed(EditProfileScreen.routeName, arguments: EditProfileScreenArgs(context: context)) : null;
+        isCurrentUser
+            ? Navigator.of(context).pushNamed(EditProfileScreen.routeName,
+                arguments: EditProfileScreenArgs(context: context))
+            : isFollowing
+                ? context.read<ProfileBloc>().add(ProfileUnFollowUser())
+                : context.read<ProfileBloc>().add(ProfileFollowUser());
       },
       style: ElevatedButton.styleFrom(
           disabledBackgroundColor: Colors.blue[100],

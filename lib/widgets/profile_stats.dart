@@ -41,7 +41,7 @@ class ProfileStats extends StatelessWidget {
 }
 
 class _Stats extends StatelessWidget {
-  const _Stats({super.key, required this.value, required this.label});
+  const _Stats({required this.value, required this.label});
 
   final String value;
   final String label;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ProfileInfo extends StatelessWidget {
   const ProfileInfo({super.key, required this.username, required this.bio});
@@ -10,14 +9,17 @@ class ProfileInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(username, style: const TextStyle(fontWeight: FontWeight.bold),),
+        Text(
+          username,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(
           height: 8,
         ),
         Text(bio),
-        const Divider(),
       ],
     );
   }
