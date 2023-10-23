@@ -33,6 +33,7 @@ dependencies:
   uuid: ^4.0.0
   font_awesome_flutter: ^10.6.0
   flutter_native_splash: ^2.3.4
+  flutter_branch_sdk: ^6.9.0
 
 dev_dependencies:
   flutter_test:

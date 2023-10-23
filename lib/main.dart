@@ -16,6 +16,8 @@ import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  //preserve the splashScreen until the user state is known
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   EquatableConfig.stringify = kDebugMode;
@@ -23,15 +25,17 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     // Determine the status bar text and icon color based on the theme brightness
     statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark, // Dark icons for light theme
-    statusBarBrightness: Brightness.light, // Light status bar for light theme
+    statusBarIconBrightness: Brightness.dark,
+    statusBarBrightness: Brightness.light,
   ));
 
   Bloc.observer = SimpleBlocObserver();
 
+  //initialize firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(const MyApp());
 }
 
