@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:instagram_flutter/extensions/extensions.dart';
 import 'package:instagram_flutter/models/models.dart';
+import 'package:instagram_flutter/screens/comments/comments_screen.dart';
 import 'package:instagram_flutter/screens/profile/profile_screen.dart';
 import 'package:instagram_flutter/widgets/user_profile_image.dart';
 
@@ -77,7 +78,10 @@ class PostView extends StatelessWidget {
               transform:
                   Matrix4.rotationY(pi), // Rotate 180 degrees horizontally
               child: IconButton(
-                onPressed: () {},
+                onPressed: () => Navigator.of(context).pushNamed(
+                  CommentsScreen.routeName,
+                  arguments: CommentsScreenArgs(post: post),
+                ),
                 icon: const FaIcon(
                   FontAwesomeIcons.comment,
                 ),
@@ -92,7 +96,9 @@ class PostView extends StatelessWidget {
             children: [
               Text(
                 '${recentlyLiked ? post.likes + 1 : post.likes} likes',
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(
                 height: 4.0,
@@ -103,16 +109,15 @@ class PostView extends StatelessWidget {
                     TextSpan(
                       text: '${post.author.username}  ',
                       style: const TextStyle(
-                        color: Colors.black,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     TextSpan(
                       text: post.caption,
-                      style: TextStyle(
-                          color: Colors.grey[800],
-                          fontWeight: FontWeight.w400,
-                          fontSize: 12),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
