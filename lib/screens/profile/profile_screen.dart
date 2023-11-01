@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_flutter/blocs/auth/auth_bloc.dart';
 import 'package:instagram_flutter/blocs/profile/profile_bloc.dart';
 import 'package:instagram_flutter/repositories/repositories.dart';
+import 'package:instagram_flutter/screens/comments/comments_screen.dart';
 import 'package:instagram_flutter/screens/feed/cubit/like_post_cubit.dart';
 import 'package:instagram_flutter/widgets/error_dialog.dart';
 import 'package:instagram_flutter/widgets/post_view.dart';
@@ -159,7 +160,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                               SliverChildBuilderDelegate((context, index) {
                             final post = state.posts[index];
                             return GestureDetector(
-                              onTap: () {},
+                              onTap: () => Navigator.of(context).pushNamed(
+                                CommentsScreen.routeName,
+                                arguments: CommentsScreenArgs(post: post),
+                              ),
                               child: CachedNetworkImage(
                                 imageUrl: post!.imageUrl,
                                 fit: BoxFit.cover,

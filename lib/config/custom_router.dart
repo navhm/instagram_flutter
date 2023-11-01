@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:instagram_flutter/screens/comments/comments_screen.dart';
 import 'package:instagram_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:instagram_flutter/screens/screens.dart';
 import 'package:instagram_flutter/screens/signup/sign_up_screen.dart';
@@ -19,10 +20,15 @@ class CustomRouter {
       case NavScreen.routeName:
         return NavScreen.getRoute();
       case EditProfileScreen.routeName:
-        return EditProfileScreen.getRoute(args: settings.arguments as EditProfileScreenArgs); 
+        return EditProfileScreen.getRoute(
+            args: settings.arguments as EditProfileScreenArgs);
       //check this Profile screen router.
       case ProfileScreen.routeName:
-        return ProfileScreen.getRoute(args: settings.arguments as ProfileScreenArgs);
+        return ProfileScreen.getRoute(
+            args: settings.arguments as ProfileScreenArgs);
+      case CommentsScreen.routeName:
+        return CommentsScreen.getRoute(
+            args: settings.arguments as CommentsScreenArgs);
       default:
         return _errorRoute();
     }
