@@ -15,11 +15,13 @@ class PostView extends StatelessWidget {
       required this.post,
       required this.isLiked,
       required this.onLike,
-      this.recentlyLiked = false});
+      this.recentlyLiked = false,
+      required this.onShare});
 
   final Post post;
   final bool isLiked;
   final VoidCallback onLike;
+  final VoidCallback onShare;
   final bool recentlyLiked;
 
   @override
@@ -86,7 +88,18 @@ class PostView extends StatelessWidget {
                   FontAwesomeIcons.comment,
                 ),
               ),
-            )
+            ),
+            const Spacer(),
+            Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.rotationZ(pi / (-4)),
+              child: IconButton(
+                onPressed: onShare,
+                icon: const Icon(
+                  Icons.send,
+                ),
+              ),
+            ),
           ],
         ),
         Padding(
@@ -108,15 +121,17 @@ class PostView extends StatelessWidget {
                   children: <TextSpan>[
                     TextSpan(
                       text: '${post.author.username}  ',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
+                        color: Theme.of(context).primaryColorLight,
                       ),
                     ),
                     TextSpan(
                       text: post.caption,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 12,
+                        color: Theme.of(context).primaryColorLight,
                       ),
                     ),
                   ],

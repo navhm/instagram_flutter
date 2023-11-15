@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:instagram_flutter/screens/comments/comments_screen.dart';
+import 'package:instagram_flutter/screens/deeplink/post_screen.dart';
+import 'package:instagram_flutter/screens/deeplink/product_screen.dart';
 import 'package:instagram_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:instagram_flutter/screens/screens.dart';
 import 'package:instagram_flutter/screens/signup/sign_up_screen.dart';
@@ -29,6 +31,11 @@ class CustomRouter {
       case CommentsScreen.routeName:
         return CommentsScreen.getRoute(
             args: settings.arguments as CommentsScreenArgs);
+      case PostScreen.routeName:
+        return PostScreen.getRoute(args: settings.arguments as PostScreenArgs);
+      case ProductScreen.routeName:
+        return ProductScreen.getRoute(
+            args: settings.arguments as ProductScreenArgs);
       default:
         return _errorRoute();
     }

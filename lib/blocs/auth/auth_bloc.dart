@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:instagram_flutter/repositories/auth/auth_repository.dart';
 
 part 'auth_event.dart';
@@ -29,6 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       } else if (event is AuthLogoutRequested) {
         await _authRepository.logout();
+        FlutterBranchSdk.logout();
       }
     });
   }

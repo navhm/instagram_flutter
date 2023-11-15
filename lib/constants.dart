@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 final lightThemeData = ThemeData(
   brightness: Brightness.light,
   primaryColor: Colors.blue,
+  primaryColorLight: Colors.black,
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: Colors.white,
     selectedIconTheme: IconThemeData(
@@ -15,7 +16,7 @@ final lightThemeData = ThemeData(
   scaffoldBackgroundColor: Colors.grey[50],
   appBarTheme: const AppBarTheme(
     elevation: 0,
-    color: Colors.transparent,
+    color: Colors.white12,
     iconTheme: IconThemeData(
       color: Colors.black,
     ),
@@ -35,6 +36,7 @@ final lightThemeData = ThemeData(
 );
 
 final darkThemeData = ThemeData(
+  primaryColorLight: Colors.white,
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: Colors.black,
     selectedIconTheme: IconThemeData(

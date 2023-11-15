@@ -3,11 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:instagram_flutter/blocs/auth/auth_bloc.dart';
 import 'package:instagram_flutter/blocs/auth/simple_bloc_observer.dart';
 import 'package:instagram_flutter/config/custom_router.dart';
 import 'package:instagram_flutter/constants.dart';
+import 'package:instagram_flutter/repositories/branch/branch_repositpry.dart';
 import 'package:instagram_flutter/repositories/repositories.dart';
 import 'package:instagram_flutter/screens/feed/cubit/like_post_cubit.dart';
 import 'package:instagram_flutter/screens/screens.dart';
@@ -30,6 +32,9 @@ void main() async {
   ));
 
   Bloc.observer = SimpleBlocObserver();
+
+  //uncomment to validate FlutterBranchSDK integration
+  FlutterBranchSdk.validateSDKIntegration();
 
   //initialize firebase
   await Firebase.initializeApp(
@@ -54,6 +59,8 @@ class MyApp extends StatelessWidget {
             create: (context) => StorageRepository()),
         RepositoryProvider<PostsRepository>(
             create: (context) => PostsRepository()),
+        RepositoryProvider<BranchRepository>(
+            create: (context) => BranchRepository()),
       ],
       child: MultiBlocProvider(
         providers: [

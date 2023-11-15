@@ -63,10 +63,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       } else if (event is ToggleTabs) {
         emit(state.copyWith(tabPos: event.pos));
       } else if (event is ProfileUpdatePosts) {
-
         final likedPostIds = await _postsRepository.getLikedPostIds(
-                userId: _authBloc.state.user!.uid, posts: event.posts);
-            _likePostCubit.updateLikedPosts(postIds: likedPostIds);
+            userId: _authBloc.state.user!.uid, posts: event.posts);
+        _likePostCubit.updateLikedPosts(postIds: likedPostIds);
 
         emit(state.copyWith(posts: event.posts));
       } else if (event is ProfileFollowUser) {
@@ -75,6 +74,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         unFollowUser(event, emit);
       }
     });
+  }
+
+  void logoutUser() {
+    _authBloc.add(AuthLogoutRequested());
   }
 
   @override

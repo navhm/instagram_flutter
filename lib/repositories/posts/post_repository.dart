@@ -24,6 +24,12 @@ class PostsRepository extends BasePostsRepository {
         .add(comment.toDocument());
   }
 
+  @override
+  Future<Post?> getPostById ({required String postId}) async {
+    final postDoc = await _firebaseFirestore.collection(Paths.posts).doc(postId).get();
+    return postDoc.exists ? Post.fromDocument(postDoc) : null;
+  }
+
 //TODO: check this Future<Post?>
 //Why dont we need to use async for this???
   @override

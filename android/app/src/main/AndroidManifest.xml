@@ -6,7 +6,7 @@
     <application
         android:allowBackup="true"
         android:supportsRtl="true"
-        android:label="instagram_flutter"
+        android:label="InstagramFlutter"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -78,10 +78,10 @@
 
         <!-- Branch init -->
         <meta-data android:name="io.branch.sdk.BranchKey"
-            android:value="key_live_nqiBhXT7vxpB1C0WpN11ukjfEBi6PfoiFFF" />
+            android:value="key_live_nqiBhXT7vxpB1C0WpN11ukjfEBi6Pfoi" />
         <meta-data android:name="io.branch.sdk.BranchKey.test"
             android:value="key_test_pDnAfZHXEzfE6y6WfN62wghfDxc5Leay" />
-        <meta-data android:name="io.branch.sdk.TestMode" android:value="true" />
+        <meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
 
     </application>
 

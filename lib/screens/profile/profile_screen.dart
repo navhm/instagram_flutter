@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:instagram_flutter/blocs/auth/auth_bloc.dart';
 import 'package:instagram_flutter/blocs/profile/profile_bloc.dart';
+import 'package:instagram_flutter/models/post_model.dart';
 import 'package:instagram_flutter/repositories/repositories.dart';
 import 'package:instagram_flutter/screens/comments/comments_screen.dart';
 import 'package:instagram_flutter/screens/feed/cubit/like_post_cubit.dart';
@@ -89,7 +91,10 @@ class _ProfileScreenState extends State<ProfileScreen>
               actions: state.isCurrentUser
                   ? [
                       IconButton(
-                          onPressed: () {}, icon: const Icon(Icons.menu)),
+                          onPressed: () {
+                            context.read<ProfileBloc>().logoutUser();
+                          },
+                          icon: const Icon(Icons.logout)),
                     ]
                   : null,
               automaticallyImplyLeading: false,
@@ -146,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       onTap: (i) =>
                           context.read<ProfileBloc>().add(ToggleTabs(pos: i)),
                       controller: _tabController,
-                      indicatorColor: Colors.white,
+                      indicatorColor: Theme.of(context).primaryColorLight,
                       tabs: const [
                         Tab(icon: Icon(Icons.grid_on)),
                         Tab(icon: Icon(Icons.movie)),
@@ -201,6 +206,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                                       .read<LikePostCubit>()
                                       .likePost(post: post);
                                 }
+                              },
+                              onShare: () async {
+                                sharePost(post);
                               },
                             );
                           }, childCount: state.posts.length),
@@ -284,5 +292,48 @@ class _ProfileScreenState extends State<ProfileScreen>
             ));
       },
     );
+  }
+
+  void sharePost(Post post) async {
+    print(
+        'Canonical data => identifier: post/${post.id} , url: ${post.imageUrl} , title: ${post.author.username} , descr: ${post.caption} , postId: ${post.id}');
+
+    BranchUniversalObject buo = BranchUniversalObject(
+      canonicalIdentifier: 'post/${post.id}',
+      canonicalUrl: post.imageUrl,
+      title: post.author.username,
+      contentDescription: post.caption,
+      imageUrl: post.imageUrl,
+      contentMetadata: BranchContentMetaData()
+        ..addCustomMetadata('postId', post.id)
+        ..addCustomMetadata('contentType', 'post'),
+      publiclyIndex: true,
+      locallyIndex: true,
+      expirationDateInMilliSec:
+          DateTime.now().add(const Duration(days: 30)).millisecondsSinceEpoch,
+    );
+
+    BranchLinkProperties lp = BranchLinkProperties(
+        channel: 'WhatsApp',
+        feature: 'Share post',
+        tags: ['Post'],
+        campaign: 'Post Promo');
+
+    BranchResponse response = await FlutterBranchSdk.showShareSheet(
+        buo: buo,
+        linkProperties: lp,
+        messageText:
+            'Checkout this post from ${post.author.username} on Instagram.',
+        androidMessageTitle: 'Share via',
+        androidSharingTitle: 'Share Post');
+
+    if (response.success) {
+      print('Link shared successfully.');
+      BranchEvent event = BranchEvent.customEvent('Sharing post');
+      FlutterBranchSdk.trackContentWithoutBuo(branchEvent: event);
+    } else {
+      print(
+          'Failed to generate link: ${response.errorCode} - ${response.errorMessage}');
+    }
   }
 }
