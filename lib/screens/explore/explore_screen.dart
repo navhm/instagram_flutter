@@ -27,6 +27,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     return Scaffold(
       appBar: AppBar(
         title: CupertinoTextField(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           controller: _textEditingController,
           suffix: IconButton(
             icon: const Icon(Icons.close),
@@ -35,6 +36,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
               _textEditingController.clear();
             },
           ),
+          placeholderStyle: TextStyle(color: Theme.of(context).primaryColorLight),
+          style: TextStyle(color: Theme.of(context).primaryColorLight),
           placeholder: 'Search users',
           textInputAction: TextInputAction.search,
           onSubmitted: (value) {
